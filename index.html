@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- displays site properly based on user's device -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./images/favicon-32x32.png"
+    />
+
+    <title>Frontend Mentor | Tip calculator app</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="script.js"></script>
+  </head>
+  <body>
+    <main>
+      <img src="./images/logo.svg" alt="Splitter Logo" />
+
+      <div class="tip-calculator">
+        <form class="tip-action" id="tip-form">
+          <div class="input-group">
+            <div class="input-label-row">
+              <label for="bill">Bill</label>
+              <span class="error-msg" id="bill-error-empty">Can't be zero</span>
+              <span class="error-msg" id="bill-error-negative"
+                >Can't be negative</span
+              >
+              <span class="error-msg" id="bill-error-invalid"
+                >Invalid number</span
+              >
+            </div>
+            <div class="input-icon-wrapper">
+              <img src="./images/icon-dollar.svg" alt="" class="input-icon" />
+              <input
+                type="text"
+                inputmode="decimal"
+                name="bill"
+                id="bill"
+                class="input-errorable"
+              />
+            </div>
+          </div>
+          <div class="input-group">
+            <div class="input-label-row">
+              <span>Select Tip %</span>
+              <span class="error-msg" id="tip-error">Select a tip</span>
+              <span class="error-msg" id="tip-error-max">Max 100%</span>
+            </div>
+            <div class="tip-grid">
+              <button type="button">5%</button><button type="button">10%</button
+              ><button type="button">15%</button
+              ><button type="button">25%</button
+              ><button type="button">50%</button>
+              <input
+                type="text"
+                name="custom-tip"
+                id="custom-tip"
+                placeholder="Custom"
+              />
+            </div>
+          </div>
+
+          <div class="input-group">
+            <div class="input-label-row">
+              <label for="people">Number of People</label>
+              <span class="error-msg" id="people-error-empty"
+                >Can't be zero</span
+              >
+              <span class="error-msg" id="people-error-negative"
+                >Can't be negative</span
+              >
+              <span class="error-msg" id="people-error-invalid"
+                >Invalid number</span
+              >
+            </div>
+            <div class="input-icon-wrapper">
+              <img src="./images/icon-person.svg" alt="" class="input-icon" />
+              <input
+                type="text"
+                inputmode="decimal"
+                name="people"
+                id="people"
+                class="input-errorable"
+              />
+            </div>
+          </div>
+        </form>
+        <div class="tip-result">
+          <div class="result-rows">
+            <div class="result-row">
+              <div>
+                <span class="result-label">Tip Amount</span>
+                <span class="result-unit">/ person</span>
+              </div>
+              <span class="result-amount" id="tip-amount">$0.00</span>
+            </div>
+            <div class="result-row">
+              <div>
+                <span class="result-label">Total</span>
+                <span class="result-unit">/ person</span>
+              </div>
+              <span class="result-amount" id="total-amount">$0.00</span>
+            </div>
+          </div>
+          <button type="reset" id="reset-btn">Reset</button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="attribution">
+      Challenge by
+      <a href="https://www.frontendmentor.io?ref=challenge">Frontend Mentor</a>.
+      Coded by
+      <a href="https://www.frontendmentor.io/profile/NationsAnarchy"
+        >Phúc (Scott) Nguyễn</a
+      >.
+    </footer>
+  </body>
+</html>

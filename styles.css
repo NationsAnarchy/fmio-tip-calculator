@@ -1,0 +1,345 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&display=swap");
+
+/* ------------------------------------------
+   CSS Reset
+   ------------------------------------------ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+}
+
+body {
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-bold);
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input {
+  border: none;
+  outline: none;
+}
+
+/* ------------------------------------------
+   Design Tokens
+   ------------------------------------------ */
+:root {
+  /* ------------------------------------------
+     Colors - Primary
+     ------------------------------------------ */
+  --color-primary-green-400: hsl(172, 67%, 45%);
+
+  /* ------------------------------------------
+     Colors - Neutral
+     ------------------------------------------ */
+  --color-neutral-green-900: hsl(183, 100%, 15%);
+  --color-neutral-grey-500: hsl(186, 14%, 43%);
+  --color-neutral-grey-400: hsl(184, 14%, 56%);
+  --color-neutral-grey-200: hsl(185, 41%, 84%);
+  --color-neutral-grey-50: hsl(189, 47%, 97%);
+  --color-neutral-white: hsl(0, 100%, 100%);
+
+  /* ------------------------------------------
+     Typography
+     ------------------------------------------ */
+  --font-family-base: "Space Mono", monospace;
+  --font-weight-bold: 700;
+  --font-size-form-inputs: 24px;
+}
+
+body {
+  font-family: var(--font-family-base);
+  background-color: var(--color-neutral-grey-200);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 60rem;
+  width: 100%;
+  gap: 5rem;
+  padding: 2.5rem 1rem;
+}
+
+.tip-calculator {
+  background-color: var(--color-neutral-white);
+  border-radius: 1rem;
+  padding: 2rem;
+  display: flex;
+  gap: 2rem;
+}
+
+.tip-action {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: flex-start;
+  gap: 2rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.input-group .input-label-row > span:not(.error-msg),
+.input-group label {
+  color: var(--color-neutral-grey-500);
+  font-size: 0.875rem;
+}
+
+.input-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.error-msg {
+  color: #e74c3c !important;
+  font-size: 0.75rem;
+  display: none;
+}
+
+.error-msg.visible {
+  display: inline;
+}
+
+.input-icon-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.75rem;
+  height: auto;
+  pointer-events: none;
+}
+
+input.input-errorable {
+  width: 100%;
+  padding: 0.5rem 1rem 0.5rem 2.5rem;
+  background-color: var(--color-neutral-grey-50);
+  color: var(--color-neutral-green-900);
+  border-radius: 0.25rem;
+  font-size: var(--font-size-form-inputs);
+  text-align: right;
+}
+
+input.input-errorable.error {
+  outline: 2px solid #e74c3c;
+}
+
+.tip-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.tip-grid button,
+.tip-grid input[type="text"] {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  text-align: center;
+  font-size: 1.25rem;
+}
+
+.tip-grid button {
+  background-color: var(--color-neutral-green-900);
+  color: var(--color-neutral-white);
+}
+
+.tip-grid button.active {
+  background-color: var(--color-primary-green-400);
+  color: var(--color-neutral-green-900);
+}
+
+.tip-grid input[type="text"] {
+  background-color: var(--color-neutral-grey-50);
+  color: var(--color-neutral-green-900);
+}
+
+.tip-result {
+  flex: 1;
+  background-color: var(--color-neutral-green-900);
+  border-radius: 1rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.result-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.result-label {
+  color: var(--color-neutral-white);
+  font-size: 1rem;
+}
+
+.result-unit {
+  color: var(--color-neutral-grey-400);
+  font-size: 0.75rem;
+  display: block;
+}
+
+.result-amount {
+  color: var(--color-primary-green-400);
+  font-size: 2.5rem;
+}
+
+#reset-btn {
+  background-color: var(--color-primary-green-400);
+  color: var(--color-neutral-green-900);
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+  font-size: 1.25rem;
+  width: 100%;
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+#reset-btn:not(:disabled) {
+  opacity: 1;
+  cursor: pointer;
+}
+
+#reset-btn:not(:disabled):hover {
+  background-color: var(--color-neutral-grey-200);
+}
+
+.attribution {
+  font-size: 0.6875rem;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.attribution a {
+  color: hsl(228, 45%, 44%);
+}
+
+/* ------------------------------------------
+   Responsive - Mobile (≤ 850px)
+   ------------------------------------------ */
+@media (max-width: 850px) {
+  body {
+    padding: 0;
+  }
+
+  main {
+    justify-content: flex-start;
+    max-width: 100%;
+    gap: 2rem;
+    padding: 2.5rem 0 0;
+  }
+
+  .tip-calculator {
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+    padding: 1.5rem;
+    gap: 1.5rem;
+    border-radius: 1rem 1rem 0 0;
+  }
+
+  .tip-action {
+    gap: 1.5rem;
+  }
+
+  .tip-result {
+    gap: 2rem;
+  }
+
+  .tip-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 1rem;
+  }
+
+  #reset-btn {
+    margin-top: 1rem;
+  }
+
+  .attribution {
+    display: none;
+  }
+}
