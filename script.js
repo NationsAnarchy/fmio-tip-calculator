@@ -26,6 +26,11 @@ const resetBtn = document.getElementById("reset-btn");
 let selectedTip = null;
 let hasCalculated = false;
 
+// Track which fields the user has interacted with
+let billTouched = false;
+let peopleTouched = false;
+let tipTouched = false;
+
 // --- Reset button state ---
 
 function setResetDisabled(disabled) {
@@ -96,12 +101,99 @@ function sanitizeNumeric(value) {
   return cleaned;
 }
 
-// Clear errors while the user is typing
+// --- Auto-calculation ---
+
+function tryCalculate() {
+  clearErrors();
+
+  const billValue = billInput.value;
+  const peopleValue = peopleInput.value;
+  const customTipValue = customTipInput.value;
+  const billNum = parseFloat(billValue);
+  const peopleNum = parseInt(peopleValue, 10);
+  const customTipNum = parseFloat(customTipValue);
+  const tipPercent = customTipValue ? customTipNum : selectedTip;
+
+  let hasError = false;
+
+  // Validate bill
+  if (billTouched) {
+    const billIssue = validateField(billValue, billErrors);
+    if (billIssue) {
+      showError(billInput, billErrors, billIssue);
+      hasError = true;
+    }
+  } else if (billValue.trim() !== "" && !isNaN(billNum) && billNum !== 0) {
+    // Bill has content that appears valid but field not yet "touched" — no-op
+  } else if (billValue.trim() !== "" && isNaN(billNum)) {
+    // Bill has content but is invalid — treat as internal error
+    hasError = true;
+  }
+
+  // Validate people
+  if (peopleTouched) {
+    const peopleIssue = validateField(peopleValue, peopleErrors);
+    if (peopleIssue) {
+      showError(peopleInput, peopleErrors, peopleIssue);
+      hasError = true;
+    }
+  } else if (peopleValue.trim() !== "" && !isNaN(peopleNum) && peopleNum !== 0) {
+    // People has content that appears valid — no-op
+  } else if (peopleValue.trim() !== "" && isNaN(peopleNum)) {
+    hasError = true;
+  }
+
+  // Validate tip
+  if (tipTouched) {
+    if (customTipValue && customTipNum > 100) {
+      tipErrorMax.classList.add("visible");
+      hasError = true;
+    } else if (isNaN(tipPercent) || tipPercent < 0) {
+      tipError.classList.add("visible");
+      hasError = true;
+    }
+  } else if (customTipValue !== "" && customTipNum > 100) {
+    hasError = true;
+  } else if (customTipValue !== "" && isNaN(customTipNum)) {
+    hasError = true;
+  }
+
+  if (hasError) {
+    // Reset results if there are errors
+    document.getElementById("tip-amount").textContent = "$0.00";
+    document.getElementById("total-amount").textContent = "$0.00";
+    setResetDisabled(true);
+    hasCalculated = false;
+    return;
+  }
+
+  // Only calculate if all three required values are present and valid
+  if (!billValue.trim() || !peopleValue.trim()) return;
+  if (billNum <= 0 || peopleNum <= 0) return;
+  if (isNaN(tipPercent) || tipPercent < 0) return;
+
+  // All valid — calculate
+  const tipAmountPerPerson = (billNum * (tipPercent / 100)) / peopleNum;
+  const totalPerPerson = (billNum + billNum * (tipPercent / 100)) / peopleNum;
+
+  document.getElementById("tip-amount").textContent = `$${tipAmountPerPerson.toFixed(2)}`;
+  document.getElementById("total-amount").textContent = `$${totalPerPerson.toFixed(2)}`;
+  enableReset();
+}
+
+// --- Input event listeners ---
+
 billInput.addEventListener("input", () => {
   billInput.value = sanitizeNumeric(billInput.value);
   billInput.classList.remove("error");
   allBillErrors.forEach((el) => el.classList.remove("visible"));
   disableResetOnChange();
+  tryCalculate();
+});
+
+billInput.addEventListener("blur", () => {
+  billTouched = true;
+  tryCalculate();
 });
 
 peopleInput.addEventListener("input", () => {
@@ -109,17 +201,25 @@ peopleInput.addEventListener("input", () => {
   peopleInput.classList.remove("error");
   allPeopleErrors.forEach((el) => el.classList.remove("visible"));
   disableResetOnChange();
+  tryCalculate();
 });
 
-// Submit on Enter key pressed in any form input or tip button
-form.addEventListener("keydown", (e) => {
-  if (
-    e.key === "Enter" &&
-    (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON")
-  ) {
-    e.preventDefault();
-    form.dispatchEvent(new Event("submit", { cancelable: true }));
-  }
+peopleInput.addEventListener("blur", () => {
+  peopleTouched = true;
+  tryCalculate();
+});
+
+customTipInput.addEventListener("input", () => {
+  customTipInput.value = sanitizeNumeric(customTipInput.value);
+  tipButtons.forEach((btn) => btn.classList.remove("active"));
+  selectedTip = null;
+  disableResetOnChange();
+  tryCalculate();
+});
+
+customTipInput.addEventListener("blur", () => {
+  tipTouched = true;
+  tryCalculate();
 });
 
 // --- Tip button selection ---
@@ -129,64 +229,20 @@ tipButtons.forEach((button) => {
     button.classList.add("active");
     customTipInput.value = "";
     selectedTip = parseFloat(button.textContent);
+    tipTouched = true;
     disableResetOnChange();
+    tryCalculate();
   });
 });
 
-// --- Custom tip input ---
-customTipInput.addEventListener("input", () => {
-  customTipInput.value = sanitizeNumeric(customTipInput.value);
-  tipButtons.forEach((btn) => btn.classList.remove("active"));
-  selectedTip = null;
-  disableResetOnChange();
-});
-
-// --- Form submission ---
+// --- Form submission (fallback for enter key on form) ---
 form.addEventListener("submit", (event) => {
   event.preventDefault();
-  clearErrors();
-
-  const bill = parseFloat(billInput.value);
-  const people = parseInt(peopleInput.value, 10);
-  const customTip = parseFloat(customTipInput.value);
-  const tipPercent = customTipInput.value ? customTip : selectedTip;
-
-  let hasError = false;
-
-  const billIssue = validateField(billInput.value, billErrors);
-  if (billIssue) {
-    showError(billInput, billErrors, billIssue);
-    hasError = true;
-  }
-
-  const peopleIssue = validateField(peopleInput.value, peopleErrors);
-  if (peopleIssue) {
-    showError(peopleInput, peopleErrors, peopleIssue);
-    hasError = true;
-  }
-
-  if (customTipInput.value && customTip > 100) {
-    tipErrorMax.classList.add("visible");
-    hasError = true;
-  } else if (isNaN(tipPercent) || tipPercent < 0) {
-    tipError.classList.add("visible");
-    hasError = true;
-  }
-
-  if (hasError) return;
-
-  // Calculations
-  const tipAmountPerPerson = (bill * (tipPercent / 100)) / people;
-  const totalPerPerson = (bill + bill * (tipPercent / 100)) / people;
-
-  const tipAmountDisplay = document.getElementById("tip-amount");
-  const totalDisplay = document.getElementById("total-amount");
-
-  if (tipAmountDisplay && totalDisplay) {
-    tipAmountDisplay.textContent = `$${tipAmountPerPerson.toFixed(2)}`;
-    totalDisplay.textContent = `$${totalPerPerson.toFixed(2)}`;
-    enableReset();
-  }
+  // Mark all fields as touched so errors show
+  billTouched = true;
+  peopleTouched = true;
+  tipTouched = true;
+  tryCalculate();
 });
 
 // --- Reset handler ---
@@ -204,5 +260,8 @@ resetBtn.addEventListener("click", () => {
   tipButtons.forEach((btn) => btn.classList.remove("active"));
   selectedTip = null;
   hasCalculated = false;
+  billTouched = false;
+  peopleTouched = false;
+  tipTouched = false;
   setResetDisabled(true);
 });
